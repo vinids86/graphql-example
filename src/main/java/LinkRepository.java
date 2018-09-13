@@ -1,9 +1,11 @@
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import com.mongodb.client.MongoCollection;
@@ -24,14 +26,36 @@ public class LinkRepository {
 		return link(doc);
 	}
 
-	public List<Link> getAllLinks() {
+	public List<Link> getAllLinks(LinkFilter filter) {
+		final Optional<Bson> mongoFilter = Optional.ofNullable(filter)
+				.map(this::buildFilter);
+
 		final List<Link> allLinks = new ArrayList<>();
-		for (Document doc : links.find()) {
-			Link link = new Link(doc.get("_id").toString(), doc.getString("url"),
-					doc.getString("description"), doc.getString("postedBy"));
-			allLinks.add(link);
+		for (Document doc : mongoFilter.map(links::find).orElseGet(links::find)) {
+			allLinks.add(link(doc));
 		}
 		return allLinks;
+	}
+
+	private Bson buildFilter(LinkFilter filter) {
+
+		final String descriptionPattern = filter.getDescriptionContains();
+		final String urlPattern = filter.getUrlContains();
+		Bson descriptionCondition = null;
+		Bson urlCondition = null;
+
+		if (descriptionPattern != null && !descriptionPattern.isEmpty()) {
+			descriptionCondition = regex("description", ".*" + descriptionPattern + ".*",
+					"i");
+		}
+		if (urlPattern != null && !urlPattern.isEmpty()) {
+			urlCondition = regex("url", urlPattern + ".*", "i");
+		}
+
+		if (descriptionCondition != null && urlCondition != null) {
+			return and(descriptionCondition, urlCondition);
+		}
+		return descriptionCondition != null ? descriptionCondition : urlCondition;
 	}
 
 	public void saveLink(Link link) {
@@ -44,6 +68,6 @@ public class LinkRepository {
 
 	private Link link(Document doc) {
 		return new Link(doc.get("_id").toString(), doc.getString("url"),
-				doc.getString("description"));
+				doc.getString("description"), doc.getString("postedBy"));
 	}
 }
