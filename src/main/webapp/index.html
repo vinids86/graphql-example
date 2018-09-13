@@ -11,6 +11,8 @@
       #graphiql {
         height: 100vh;
       }
+
+
     </style>
 
     <!--
@@ -30,7 +32,7 @@
       copy them directly into your environment, or perhaps include them in your
       favored resource bundler.
      -->
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/graphiql@0.11.2/graphiql.css" />
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/graphiql@0.11.2/graphiql.css"/>
     <script src="//cdn.jsdelivr.net/npm/graphiql@0.11.2/graphiql.js"></script>
 
 </head>
@@ -38,7 +40,8 @@
 <div id="graphiql">Loading...</div>
 <script>
       /**
-       * This GraphiQL example illustrates how to use some of GraphiQL's props
+       * This GraphiQL example illustrates how to use some of GraphiQL's propsmethod: 'post',
+
        * in order to enable reading and updating the URL parameters, making
        * link sharing of queries a little bit easier.
        *
@@ -99,6 +102,7 @@
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
+            'Authorization': 'Bearer 5b9ab37266bc08737af97765',
           },
           body: JSON.stringify(graphQLParams),
           credentials: 'include',
@@ -128,6 +132,8 @@
         }),
         document.getElementById('graphiql')
       );
-    </script>
+
+
+</script>
 </body>
 </html>
