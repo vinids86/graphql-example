@@ -8,6 +8,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
 /**
@@ -26,12 +27,14 @@ public class LinkRepository {
 		return link(doc);
 	}
 
-	public List<Link> getAllLinks(LinkFilter filter) {
+	public List<Link> getAllLinks(LinkFilter filter, int skip, int first) {
 		final Optional<Bson> mongoFilter = Optional.ofNullable(filter)
 				.map(this::buildFilter);
 
 		final List<Link> allLinks = new ArrayList<>();
-		for (Document doc : mongoFilter.map(links::find).orElseGet(links::find)) {
+		final FindIterable<Document> documents = mongoFilter.map(links::find)
+				.orElseGet(links::find);
+		for (Document doc : documents.skip(skip).limit(first)) {
 			allLinks.add(link(doc));
 		}
 		return allLinks;
